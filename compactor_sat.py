@@ -127,6 +127,8 @@ def compactible(H1 : nx.DiGraph, dim, upper):
     for gedge in G.edges():
         model.Add(sum([flow[hedge][gedge] for hedge in H.edges()]) + sum([flow[hedge][gedge[::-1]] for hedge in H.edges()]) <= 1)
 
+    # model.Minimize(sum([power_internal[gvert] for gvert in G]))
+
     solver = cp_model.CpSolver()
     status = solver.Solve(model)
     # print(status == cp_model.INFEASIBLE)
@@ -152,14 +154,14 @@ def draw_mapping(edge_mapping, power_edges, node_map, dim, H):
     # print(edge_mapping.keys())
     # print(colored_edges)
     # nt = Network('500px', '500px')
-    nx.draw(G, labels=inv_node_map, edge_color=['red' if gedge in colored_edges else ('purple' if gedge in power_edges else 'blue') for gedge in G.edges()])
+    nx.draw(G, labels=inv_node_map, nodelist = node_map.values(), edgelist=colored_edges + power_edges, edge_color=['red' if gedge in colored_edges else 'purple' for gedge in colored_edges + power_edges])
     plt.show()
     
 H = readwrite.read_graphml('./test_graphs/tier4.graphml')
 # print([data for _, data in H.nodes(data=True)])
-test_dim = (2, 3, 4)
+test_dim = (3, 3, 3)
 
-edge_map, power_edges, node_map = compactible(H, test_dim, 2)
+edge_map, power_edges, node_map = compactible(H, test_dim, 1)
 print(edge_map)
 print(node_map)
 # edge_map = {('n0', 'n1'): [((2, 0, 1), (1, 0, 1))], ('n1', 'n4'): [((1, 0, 1), (0, 0, 1))], ('n2', 'n1'): [((1, 0, 0), (1, 0, 1))], ('n3', 'n4'): [((0, 1, 1), (0, 0, 1)), ((0, 1, 0), (0, 1, 1))], ('n4', 'n5'): [((0, 0, 1), (0, 0, 0))], ('n6', 'n0'): [((2, 1, 0), (2, 0, 0)), ((2, 0, 0), (2, 0, 1))], ('n7', 'n6'): [((1, 1, 0), (2, 1, 0))], ('n8', 'n6'): [((2, 2, 0), (2, 1, 0))], ('n8', 'n12'): [((2, 2, 0), (2, 2, 1))], ('n9', 'n8'): [((1, 2, 0), (2, 2, 0))], ('n10', 'n11'): [((1, 1, 1), (2, 1, 1))], ('n11', 'n6'): [((2, 1, 1), (2, 1, 0))], ('n12', 'n11'): [((2, 2, 1), (2, 1, 1))], ('n13', 'n12'): [((1, 2, 1), (2, 2, 1))], ('n14', 'n13'): [((0, 2, 0), (0, 2, 1)), ((0, 2, 1), (1, 2, 1))]}
